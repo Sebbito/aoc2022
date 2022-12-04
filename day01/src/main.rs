@@ -1,4 +1,5 @@
 use std::fs;
+use std::iter::Iterator;
 
 // Instance of a calory list
 #[derive(PartialEq, Eq, PartialOrd, Ord)] // for the sorting later on
@@ -23,10 +24,31 @@ struct ListOfCaloryLists {
     lists: Vec<CaloryList>,
 }
 
-// function to create a new entry. Rust really forces you to make nice structs man
 impl ListOfCaloryLists {
+
+    // function to create a new entry. Rust really forces you to make nice structs man
     fn new_entry(&mut self) {
         self.lists.push(CaloryList { items: Vec::new() });
+    }
+
+    // function to read a list of calories
+    fn read_list(&mut self, file_contents: &str) {
+        // go through all the lists
+        for line in file_contents.lines() {
+            
+            // empty line means that we need a new list
+            if line.is_empty() {
+                self.new_entry();
+                continue;
+            }
+            
+            // get the current list
+            let cur = self.lists.last_mut();
+            if cur != None {
+            // read and store the caloric value of the item in the current line
+                cur.unwrap().items.push(line.parse().expect("Not a number"));
+            }
+        }
     }
 }
 
@@ -43,28 +65,19 @@ fn main() {
     // also create a starting list
     list_of_calory_lists.new_entry();
 
-    // go through all the lists
-    for line in file_contents.lines() {
-        
-        // empty line means that we need a new list
-        if line.is_empty() {
-            list_of_calory_lists.new_entry();
-            continue;
-        }
-        
-        // get the current list
-        let cur = list_of_calory_lists.lists.last_mut();
-        if cur != None {
-        // read and store the caloric value of the item in the current line
-            cur.unwrap().items.push(line.parse().expect("Not a number"));
-        }
-    }
+    // read the list
+    list_of_calory_lists.read_list(&file_contents);
 
     // sort all the lists for the highest caloric value
     list_of_calory_lists.lists.sort_by_key(|element| element.total_calories());
     
+    // part 1: output the highest
     let highest: u32 = list_of_calory_lists.lists.last().unwrap().total_calories();
-    // output the highest
-    println!("{highest}")
+    println!("Highest single caloric value: {highest}");
+
+    // part 2: output the 3 highest and add them together
+    let top_3_total: u32 = list_of_calory_lists.lists.iter().rev().take(3).map(|list| list.total_calories()).sum();
+    println!("Three highest caloric values combined {top_3_total}");
+
 }
     
