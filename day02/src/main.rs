@@ -18,7 +18,7 @@ fn assert_win(opponent_hand: i32, my_hand: i32) -> i32{
 }
 
 fn find_hand(opponent_hand: i32, result: i32) -> i32 {
-    let mut my_hand = 0;
+    let mut my_hand: i32;
 
     if result == 3 { // draw
         my_hand = opponent_hand;
